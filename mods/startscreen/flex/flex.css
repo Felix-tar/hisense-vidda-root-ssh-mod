@@ -1,0 +1,484 @@
+/* flex.css — FLEX·TV Startseiten-Mod für den VIDAA-Launcher (hisenseUI, Cobalt).
+   Eingebunden per <link> in /APPS/channelA/hisenseUI/index.html (direkt nach app.css).
+   Rückgängig: mods/startscreen/uninstall.sh bzw. docs/gui-mod/ROLLBACK.md. */
+
+/* Schritt 1 — Wallpaper.
+   Wurzel der Startseite ist .launcher (LauncherHis.vue, Scope-Hash 81590a38); sie bekommt
+   ihre Farbe per Inline-Style (launcher_background_color). !important schlägt den
+   Inline-Style. Longhands statt Shorthand, weil Cobalt nur eine CSS-Teilmenge parst. */
+.launcher[data-v-81590a38] {
+  background-color: #0b0c14 !important;
+  background-image: url(wallpaper.webp) !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+  /* flex.js hält die Startseite beim Kaltstart unsichtbar, bis sie fertig aufgebaut ist */
+  transition: opacity 0.4s ease-out;
+}
+
+/* Schritt 3 — Empfehlungen/Werbung. flex.js leert die Daten (Fokus bleibt korrekt);
+   hier zusätzlich ausblenden, damit nachgeladene Reihen nicht kurz aufblitzen.
+   Scope-Hashes: MainTiles e75fc950, waterfall 58dbb588. */
+.recommendList[data-v-e75fc950],
+.mainChoose[data-v-e75fc950],
+.netflixStyle[data-v-e75fc950],
+.waterfall__wrapper[data-v-58dbb588] {
+  display: none !important;
+}
+
+/* Schritt 4 — App-Leiste am unteren Rand, 9 Kacheln in einer Reihe.
+   .mainTiles hat inline top:4rem; darin liegt das Kachel-Raster bei 16.933rem (+1.2rem).
+   top 11.8rem -> Leisten-Hintergrund 28.73–35.47rem (Bild = 36rem breit 64rem).
+   Das Raster rechnet fest mit 7 Spalten à 7.777rem; Breite und Position der 9 Kacheln
+   (Kodi, 6 Apps, Quellen, Alle Apps) setzen wir hier: Rand 2.4rem und Abstand 0.8rem wie bei
+   8 Kacheln, dafür 5.867rem breit (Seitenverhältnis der Kachelbilder 402:224 bleibt, 3.27rem
+   hoch, um 0.23rem nach unten gesetzt, damit die Reihe mittig in der Leiste bleibt).
+   (Die Seite "Bilder" hat keine eigene Kachel, sie steht am Ende von "Alle Apps".) */
+.mainTiles[data-v-e75fc950] {
+  top: 11.8rem !important;
+}
+.mainTiles .mainTileItem .main {
+  width: 5.867rem !important;
+  height: 3.27rem !important;
+}
+#LauncherMainTile-0 { left: 2.4rem !important; top: 1.43rem !important; }
+#LauncherMainTile-1 { left: 9.067rem !important; top: 1.43rem !important; }
+#LauncherMainTile-2 { left: 15.733rem !important; top: 1.43rem !important; }
+#LauncherMainTile-3 { left: 22.4rem !important; top: 1.43rem !important; }
+#LauncherMainTile-4 { left: 29.067rem !important; top: 1.43rem !important; }
+#LauncherMainTile-5 { left: 35.733rem !important; top: 1.43rem !important; }
+#LauncherMainTile-6 { left: 42.4rem !important; top: 1.43rem !important; }
+#LauncherMainTile-7 { left: 49.067rem !important; top: 1.43rem !important; }
+#LauncherMainTile-8 { left: 55.733rem !important; top: 1.43rem !important; }
+
+/* Schritt 6 — Seite "Alle Apps" (Kachel "Alle Apps" bzw. Taste 615; AllApps.vue, Chunk 100.js).
+   Scope-Hashes: Seite 7aa71c2d, Raster grid-view 776a1458, Kachel app-tile 0c8ebc0b. Die Wurzel
+   #AllApps hat inline einen Verlauf (100.js L606-608); !important schlägt ihn, Longhands wie oben.
+   Bei Wahl in "Bilder" > Hintergrund tauscht flex.js (applyWallpaper) das Bild sofort mit aus. */
+#AllApps[data-v-7aa71c2d] {
+  background-color: #0b0c14 !important;
+  background-image: url(wallpaper.webp) !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+}
+/* Trennlinie "Auf dem Home-Bildschirm anzeigen" samt dunkler Fläche darunter (ohne Mod landen die
+   ersten 14 Apps auf der Startseite, mit flex.js nicht) und Hinweis "Drücken Sie [MENU] ...".
+   MENU (sortieren) funktioniert weiter wie im Original. */
+.cutArea[data-v-7aa71c2d],
+.remindTitle1[data-v-7aa71c2d] {
+  display: none !important;
+}
+/* Kacheln: dunkle, halbdurchsichtige Platte (wie das Wetter-Widget) statt Grau rgb(36,40,45);
+   deckende Kachelbilder verdecken sie ganz. Fokus (scale 1.15, weißer Rahmen, Schatten) ist schon
+   derselbe wie auf der Startseite (100.js L221 = 92.js L471). Beide Scope-Hashes trägt nur die
+   Kachel-Wurzel (#AllAppsTile-<n>), nicht das Logo darin. */
+#AllApps div[data-v-776a1458][data-v-0c8ebc0b] {
+  background-color: rgba(16, 18, 28, 0.62) !important;
+}
+
+/* Schritt 5 — Ladebildschirm beim Kaltstart. Das Element steht direkt am Anfang von <body> in
+   index.html (install.sh), damit der Launcher es mit seinem allerersten Bild zeigt statt Schwarz.
+   Bild = gleiches Motiv wie die Boot-Animation (mods/bootanim/gen_frames.py -> loading.jpg),
+   die drei Punkte von "System startet..." pulsieren hier. Beim Kaltstart ist die CPU so
+   ausgelastet, dass das große Bild erst spät dekodiert ist: darunter liegt eine winzige
+   unscharfe Vorschau (loading-blur.jpg, 4 KB), die sofort da ist; .fl-full deckt sie ab, sobald
+   das scharfe Bild fertig ist. flex.js blendet alles aus, sobald die Startseite fertig ist.
+   Notbremse ohne flex.js: nach 45 s blendet ihn diese Regel selbst aus; ohne flex.css hat das
+   Element keine Größe und ist unsichtbar. */
+#flex-loading {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1920px;
+  height: 1080px;
+  z-index: 2000;
+  background-color: #0b0c14;
+  background-image: url(loading-blur.jpg);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  opacity: 1;
+  transition: opacity 0.5s ease-out;
+  animation: flex-loading-off 0.5s ease-out 45s forwards;
+}
+#flex-loading .fl-full {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1920px;
+  height: 1080px;
+  background-image: url(loading.jpg);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+#flex-loading.fl-out {
+  opacity: 0;
+}
+#flex-loading .fl-dot {
+  position: absolute;
+  top: 732px;
+  width: 6px;
+  height: 6px;
+  background-color: #7f8bb3;
+  opacity: 0.15;
+  animation: flex-dot 1.2s ease-in-out infinite;
+}
+#flex-loading .d1 { left: 392px; }
+#flex-loading .d2 { left: 411px; animation-delay: 0.2s; }
+#flex-loading .d3 { left: 430px; animation-delay: 0.4s; }
+@keyframes flex-dot {
+  0% { opacity: 0.15; }
+  50% { opacity: 1; }
+  100% { opacity: 0.15; }
+}
+@keyframes flex-loading-off {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* Bildschirmschoner (flex.js): Phase 1 blendet Kacheln, Statusleiste und Wetter aus (nur das
+   Wallpaper bleibt), Phase 2 macht die ganze Startseite durchsichtig, damit das Foto des
+   nativen Players (Video-Ebene) zu sehen ist. */
+.launcher__wrapper[data-v-81590a38] {
+  transition: transform 0.25s linear, opacity 1s ease-in-out !important;
+}
+.launcher.flex-ss .launcher__wrapper[data-v-81590a38],
+.launcher.flex-ss #flex-weather {
+  opacity: 0 !important;
+}
+.launcher.flex-ss-photo[data-v-81590a38] {
+  opacity: 0 !important;
+  transition: opacity 1.5s ease-in-out !important;
+}
+/* Kodi-Wiedergabe über den TV-Player (flex.js kodiPlay): Startseite durchsichtig, damit im
+   Misch-Modus unter Kodis durchsichtigen Pixeln die Videoebene zu sehen ist. Nur im Misch-Modus
+   gesetzt (play.json ov:1); kodiTick entfernt sie, sobald Kodi nicht mehr läuft (D16), stop()
+   bei jedem Hot-Reload (v6 kennt sie nicht). Eigene Klasse, damit applySsClasses sie nie wegnimmt. */
+.launcher.flex-kp-video[data-v-81590a38] {
+  opacity: 0 !important;
+  transition: opacity 0.3s ease-in-out !important;
+}
+/* Abdeckung beim Bildwechsel: Full-HD-Kopie des aktuellen Bildes über dem Player, während der
+   das nächste Bild lädt; blendet danach aus (Überblendung statt Schwarz). flex.js setzt Bild,
+   Deckkraft, Übergang und -- passend zum Zoom des Players -- Lage und Größe. */
+#flex-ss-cover {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1920px;
+  height: 1080px;
+  z-index: 1500;
+  overflow: hidden;
+  opacity: 0;
+}
+#flex-ss-cover > div {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1920px;
+  height: 1080px;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+/* Seite "Bilder" (Kachel ganz rechts, flex.js baut sie): Reiter Bildschirmschoner/Hintergrund,
+   darunter ein Raster aus 4 x 3 Vorschauen (352x198 px, Abstand 40 px, Zeilen alle 276 px).
+   Liegt über der Startseite, unter der Überblend-Abdeckung des Schoners. Nur absolute
+   Positionen (kein float in Cobalt), Bilder als CSS-Hintergrund. */
+#flex-gallery {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1920px;
+  height: 1080px;
+  z-index: 1400;
+  overflow: hidden;
+  background-color: rgba(11, 12, 20, 0.94);
+  color: #c0caf5;
+}
+#flex-gallery .fg-title {
+  position: absolute;
+  left: 196px;
+  top: 56px;
+  font-size: 56px;
+  line-height: 70px;
+  color: #e8ecff;
+}
+#flex-gallery .fg-tab {
+  position: absolute;
+  top: 150px;
+  height: 56px;
+  line-height: 56px;
+  font-size: 28px;
+  text-align: center;
+  border-radius: 28px;
+  color: #7f8bb3;
+  background-color: rgba(36, 40, 59, 0.9);
+}
+#flex-gallery .fg-t0 { left: 196px; width: 340px; }
+#flex-gallery .fg-t1 { left: 556px; width: 240px; }
+#flex-gallery .fg-tab.on { color: #e8ecff; background-color: #3b4261; }
+#flex-gallery .fg-tab.focus { color: #16161e; background-color: #7aa2f7; }
+#flex-gallery .fg-hint {
+  position: absolute;
+  left: 840px;
+  top: 146px;
+  width: 884px;
+  font-size: 24px;
+  line-height: 32px;
+  text-align: right;
+  color: #7f8bb3;
+}
+#flex-gallery .fg-card {
+  position: absolute;
+  width: 352px;
+  height: 254px;
+}
+#flex-gallery .fg-thumb {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 352px;
+  height: 198px;
+  border-radius: 10px;
+  background-color: #24283b;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+#flex-gallery .fg-card.off .fg-thumb { opacity: 0.3; }
+#flex-gallery .fg-name {
+  position: absolute;
+  left: 4px;
+  top: 208px;
+  width: 344px;
+  height: 34px;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 24px;
+  line-height: 34px;
+  color: #c0caf5;
+}
+#flex-gallery .fg-badge {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  height: 36px;
+  line-height: 36px;
+  padding: 0 16px;
+  border-radius: 18px;
+  font-size: 22px;
+  color: #16161e;
+  background-color: #7aa2f7;
+}
+#flex-gallery .fg-card.off .fg-badge { color: #c0caf5; background-color: rgba(22, 22, 30, 0.85); }
+#flex-gallery .fg-focus {
+  position: absolute;
+  width: 352px;
+  height: 198px;
+  padding: 4px;
+  border: 5px solid #7aa2f7;
+  border-radius: 14px;
+}
+
+/* Wetter-Widget (flex.js baut es in .launcher ein). Nur absolute Positionen: Cobalt
+   unterstützt kein float; Bilder nur als CSS-Hintergrund. 1rem = 30px. */
+.flex-weather {
+  position: absolute;
+  top: 4.6rem;
+  right: 2.4rem;
+  width: 8.2rem;
+  height: 4.7rem;
+  padding: 0.5rem 0.7rem;
+  z-index: 150;
+  background-color: rgba(16, 18, 28, 0.62);
+  border: 0.033rem solid rgba(122, 162, 247, 0.32);
+  border-radius: 0.47rem;
+  color: #c0caf5;
+  font-size: 0.6rem;
+  line-height: 0.9rem;
+  transition: opacity 1s ease-in-out;
+}
+.flex-weather .fw-head {
+  position: relative;
+  height: 0.9rem;
+  color: #7f8bb3;
+  font-size: 0.5rem;
+}
+.flex-weather .fw-city {
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: #e0af68;
+}
+.flex-weather .fw-date {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+.flex-weather .fw-main {
+  position: relative;
+  height: 2.1rem;
+}
+.flex-weather .fw-icon {
+  position: absolute;
+  left: 0;
+  top: 0.1rem;
+  width: 1.9rem;
+  height: 1.9rem;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+.flex-weather .fw-temp {
+  position: absolute;
+  left: 2.3rem;
+  top: 0;
+  font-size: 1.6rem;
+  line-height: 2.1rem;
+  font-weight: bold;
+  color: #ffffff;
+}
+.flex-weather .fw-desc {
+  color: #c0caf5;
+}
+.flex-weather .fw-mm {
+  color: #7f8bb3;
+}
+
+/* Hinweis beim Start von Kodi über die Kachel ("Kodi startet …"), nur Anzeige */
+#flex-kodi-toast {
+  position: absolute;
+  left: 660px;
+  top: 760px;
+  width: 600px;
+  z-index: 1500;
+  padding: 18px 0;
+  border-radius: 14px;
+  background-color: rgba(22, 22, 34, 0.92);
+  border: 2px solid #7aa2f7;
+  color: #e8ecff;
+  font-size: 34px;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+#flex-kodi-toast.show {
+  opacity: 1;
+}
+
+/* Kachel-Menü über die Einstellungstaste (flex.js, openTileMenu): steht über der fokussierten
+   App-Kachel (left setzt flex.js), "App schließen" und "Abbrechen". Nur absolute Positionen
+   (Cobalt), Zeilen-top setzt flex.js (TM_ROW_Y/TM_ROW_DY). Über der Startseite, unter dem Hinweis
+   #flex-kodi-toast und der Abdeckung des Schoners. */
+#flex-tile-menu {
+  position: absolute;
+  top: 512px;
+  width: 520px;
+  height: 330px;
+  z-index: 1450;
+  overflow: hidden;
+  border-radius: 16px;
+  background-color: rgba(22, 22, 34, 0.96);
+  border: 2px solid #7aa2f7;
+  color: #e8ecff;
+}
+#flex-tile-menu .ftm-title {
+  position: absolute;
+  left: 32px;
+  top: 20px;
+  width: 456px;
+  height: 56px;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 40px;
+  line-height: 56px;
+  color: #e8ecff;
+}
+#flex-tile-menu .ftm-item {
+  position: absolute;
+  left: 16px;
+  width: 488px;
+  height: 64px;
+  border-radius: 12px;
+  color: #c0caf5;
+  background-color: rgba(36, 40, 59, 0.9);
+}
+#flex-tile-menu .ftm-item.focus {
+  color: #16161e;
+  background-color: #7aa2f7;
+}
+#flex-tile-menu .ftm-item.off {
+  color: #565f89;
+  background-color: rgba(36, 40, 59, 0.45);
+}
+#flex-tile-menu .ftm-label {
+  position: absolute;
+  left: 24px;
+  top: 0;
+  height: 64px;
+  font-size: 32px;
+  line-height: 64px;
+  white-space: nowrap;
+}
+#flex-tile-menu .ftm-note {
+  position: absolute;
+  right: 24px;
+  top: 0;
+  height: 64px;
+  font-size: 22px;
+  line-height: 64px;
+  white-space: nowrap;
+  color: #7f8bb3;
+}
+#flex-tile-menu .ftm-item.focus .ftm-note {
+  color: #16161e;
+}
+#flex-tile-menu .ftm-hint {
+  position: absolute;
+  left: 32px;
+  width: 456px;
+  height: 28px;
+  font-size: 20px;
+  line-height: 28px;
+  white-space: nowrap;
+  color: #7f8bb3;
+}
+
+/* BEGIN FLEX DENON STYLE */
+/* Cobalt-compatible layout: no flexbox/grid dependency. */
+#flex-denon {position:absolute;left:3rem;top:2rem;width:58rem;height:32rem;background-color:rgba(12,17,25,0.98);color:#edf3f8;z-index:99999;font-size:0.85rem;}
+#flex-denon .dn-head {position:absolute;left:2rem;top:1.2rem;right:2rem;height:3.4rem;border-bottom:0.05rem solid #344250;}
+#flex-denon .dn-brand {font-size:1.7rem;font-weight:bold;letter-spacing:0.2rem;}
+#flex-denon .dn-sub {position:absolute;left:12rem;top:0.7rem;font-size:0.7rem;color:#b7c6d4;}
+#flex-denon .dn-nav {position:absolute;left:1.5rem;top:6rem;width:14rem;}
+#flex-denon .dn-tab {padding:0.65rem;margin-bottom:0.45rem;color:#b7c6d4;}
+#flex-denon .selected {color:#71e4d0;background-color:#202e3b;}
+#flex-denon .focus {color:#061b20;background-color:#71e4d0;}
+#flex-denon .dn-content {position:absolute;left:17rem;top:5.5rem;width:39rem;}
+#flex-denon .dn-title {font-size:1.2rem;margin-bottom:1rem;}
+#flex-denon .dn-row {position:relative;height:2.1rem;line-height:2.1rem;padding:0 0.6rem;margin-bottom:0.35rem;background-color:#1d2936;}
+#flex-denon .dn-row.focus {background-color:#71e4d0;}
+#flex-denon .dn-value {position:absolute;right:0.6rem;max-width:24rem;font-size:0.7rem;}
+#flex-denon .disabled {color:#8494a2;}
+#flex-denon .dn-notice {position:absolute;left:2rem;bottom:3.4rem;right:2rem;font-size:0.75rem;color:#c9d4df;}
+#flex-denon .dn-foot {position:absolute;left:2rem;bottom:1.4rem;font-size:0.7rem;color:#9aabba;}
+/* Konsolen row above the home tiles (flex.js openDenonGroup, 17.11.2026); px like #flex-tile-menu (1920x1080). */
+#flex-denon-group {position:absolute;top:552px;height:290px;z-index:1450;overflow:hidden;border-radius:16px;background-color:rgba(22,22,34,0.96);border:2px solid #7aa2f7;color:#e8ecff;}
+#flex-denon-group .dg-title {position:absolute;left:28px;top:14px;height:44px;font-size:30px;line-height:44px;white-space:nowrap;color:#e8ecff;}
+#flex-denon-group .dg-tile {position:absolute;top:70px;width:240px;height:150px;border-radius:12px;color:#c0caf5;background-color:rgba(36,40,59,0.9);}
+#flex-denon-group .dg-tile.focus {color:#16161e;background-color:#7aa2f7;}
+#flex-denon-group .dg-name {position:absolute;left:8px;right:8px;top:34px;height:50px;font-size:38px;line-height:50px;text-align:center;white-space:nowrap;overflow:hidden;}
+#flex-denon-group .dg-state {position:absolute;left:8px;right:8px;top:92px;height:30px;font-size:22px;line-height:30px;text-align:center;white-space:nowrap;overflow:hidden;color:#7f8bb3;}
+#flex-denon-group .dg-tile.focus .dg-state {color:#16161e;}
+#flex-denon-group .dg-hint {position:absolute;left:28px;top:238px;height:28px;font-size:20px;line-height:28px;white-space:nowrap;color:#7f8bb3;}
+
+/* END FLEX DENON STYLE */
+
+/* Denon sources: same wallpaper as home; native TV input controls remain. */
+#AllInputs[data-v-73030bfb] {background-color:#0b0c14 !important;background-image:url(wallpaper.webp) !important;background-position:center center !important;background-repeat:no-repeat !important;background-size:cover !important;}
+#flex-input-cover {background-color:transparent !important;background-image:none !important;}
+.mainTileItem > .flex-denon-face {position:relative;}
+.mainTileItem > .main > .flex-source-label {position:absolute;left:0.3rem;right:0.3rem;top:50%;margin-top:-0.55rem;height:1.1rem;line-height:1.1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;color:#edf3f8;font-size:0.85rem;font-weight:bold;z-index:2;pointer-events:none;}
