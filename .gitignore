@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.env
+.env.*
+*.key
+*.pem
+*.tar.gz
+*.zip
+*.log
+build/
+private/
+wallpaper.webp
+loading.jpg
+loading-blur.jpg
+mods/theme/sets/
+mods/screensaver/images/
